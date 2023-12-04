@@ -13,6 +13,9 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 // Wallets used as locker
 const ETHERLAND_WALLETS = ["0x77883d56e2dEeafA03D448C2030Be03fb92B1e91", "0x4D459b47d2310257e917e1352e833628c11267d2"];
 
+// Supply burned
+const SUPPLY_BURNED = 7343034000000000000000000n + 14975937000000000000000000n;
+
 // Provider
 const alchemyProvider = new ethers.AlchemyProvider(1, RPC_KEY);
 // Signer
@@ -23,7 +26,7 @@ const elandContract = new ethers.Contract(ELAND_ADDRESS, abi, signer);
 // Total supply route
 app.get('/api/totalsupply', async (req, res, next) => {
   try {
-    let totalSupply = await elandContract.totalSupply(); // big number with 18 decimals
+    let totalSupply = await elandContract.totalSupply() - SUPPLY_BURNED; // big number with 18 decimals
     totalSupply = String(Number(ethers.formatEther(totalSupply)).toFixed(4));
     console.log(totalSupply);
     res.send(totalSupply);
@@ -36,7 +39,7 @@ app.get('/api/totalsupply', async (req, res, next) => {
 // Circulating supply route
 app.get('/api/circulatingsupply', async (req, res, next) => {
   try {
-    const totalSupply = await elandContract.totalSupply(); // big number with 18 decimals
+    const totalSupply = await elandContract.totalSupply() - SUPPLY_BURNED; // big number with 18 decimals
     let lockedSupply = 0n;
     for (let wallet of ETHERLAND_WALLETS) {
       lockedSupply += await elandContract.balanceOf(wallet);
